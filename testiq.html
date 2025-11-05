@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoDevs IQ Tester 🧠</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Orbitron', sans-serif;
+    background: radial-gradient(circle at top, #1a0033, #000010);
+    color: white;
+    overflow: hidden;
+  }
+
+  h1, h2 {
+    text-align: center;
+    color: #cc80ff;
+    text-shadow: 0 0 15px #cc80ff;
+  }
+
+  .container {
+    width: 90%;
+    max-width: 700px;
+    margin: auto;
+    text-align: center;
+    background: rgba(40, 0, 80, 0.4);
+    border: 2px solid #cc80ff;
+    border-radius: 20px;
+    box-shadow: 0 0 20px #9933ff;
+    padding: 20px;
+    margin-top: 40px;
+  }
+
+  input {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 18px;
+    margin: 10px 0;
+  }
+
+  button {
+    padding: 10px 25px;
+    font-size: 18px;
+    color: white;
+    background: linear-gradient(45deg, #8a2be2, #ff00ff);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  button:hover {
+    background: linear-gradient(45deg, #ff00ff, #8a2be2);
+    box-shadow: 0 0 15px #ff80ff;
+  }
+
+  .question {
+    font-size: 20px;
+    margin: 20px 0;
+  }
+
+  .timer {
+    font-size: 22px;
+    color: #ff66cc;
+    text-shadow: 0 0 10px #ff33cc;
+  }
+
+  .result {
+    font-size: 22px;
+    color: #00ffff;
+    text-shadow: 0 0 15px #00ffff;
+  }
+
+  .fade-in {
+    animation: fadein 1s ease-in-out;
+  }
+
+  @keyframes fadein {
+    from {opacity: 0;}
+    to {opacity: 1;}
+  }
+
+  .neon-border {
+    border: 3px solid transparent;
+    border-image: linear-gradient(45deg, #8a2be2, #ff00ff, #00ffff) 1;
+    animation: glow 3s infinite linear;
+  }
+
+  @keyframes glow {
+    0% { box-shadow: 0 0 15px #8a2be2; }
+    50% { box-shadow: 0 0 25px #ff00ff; }
+    100% { box-shadow: 0 0 15px #00ffff; }
+  }
+</style>
+</head>
+<body>
+  <h1>🌌 CoDevs IQ Tester 🌌</h1>
+  <div class="container neon-border" id="main">
+    <h2>Enter your name to begin</h2>
+    <input type="text" id="playerName" placeholder="Your name..."><br>
+    <button onclick="startTest()">Start Test</button>
+  </div>
+
+<script>
+const questions = [
+  { q: "Which number completes the sequence? 2, 4, 8, 16, ?", a: ["18", "24", "32", "64"], c: 2 },
+  { q: "If ALL SQUIRRELS are MAMMALS and SOME MAMMALS are CATS, can ALL SQUIRRELS be CATS?", a: ["Yes", "No", "Maybe", "Impossible"], c: 1 },
+  { q: "What is 15 + (6 × 2) - 5?", a: ["22", "26", "27", "32"], c: 1 },
+  { q: "Find the odd one out: Circle, Triangle, Square, Sphere", a: ["Circle", "Triangle", "Sphere", "Square"], c: 2 },
+  { q: "Which word is most similar to 'Brave'?", a: ["Cowardly", "Courageous", "Lazy", "Fearful"], c: 1 },
+  { q: "What comes next: A, C, F, J, O, ?", a: ["T", "S", "U", "V"], c: 0 },
+  { q: "Find the missing number: 3, 6, 12, 24, ?", a: ["30", "36", "40", "48"], c: 3 },
+  { q: "Which shape has the most sides?", a: ["Triangle", "Hexagon", "Square", "Pentagon"], c: 1 },
+  { q: "If 5x = 20, what is x?", a: ["4", "5", "6", "8"], c: 0 },
+  { q: "Find the pattern: 1, 1, 2, 3, 5, 8, ?", a: ["11", "12", "13", "13"], c: 3 },
+  { q: "Which planet is known as the Red Planet?", a: ["Earth", "Mars", "Venus", "Jupiter"], c: 1 },
+  { q: "Solve: 9² - 3³", a: ["36", "54", "63", "45"], c: 3 },
+  { q: "If you rearrange the letters 'CIFAIPC', you get:", a: ["PACIFIC", "PACIFC", "ACIFICP", "CAPIFIC"], c: 0 },
+  { q: "What color do you get if you mix red and blue?", a: ["Green", "Purple", "Orange", "Yellow"], c: 1 },
+  { q: "What’s the capital of Japan?", a: ["Seoul", "Kyoto", "Tokyo", "Beijing"], c: 2 }
+];
+
+let current = 0;
+let score = 0;
+let timer;
+let timeLeft = 15;
+let name = "";
+
+function startTest() {
+  const input = document.getElementById("playerName");
+  name = input.value.trim();
+  if (name === "") {
+    alert("Please enter your name first!");
+    return;
+  }
+  showQuestion();
+}
+
+function showQuestion() {
+  if (current >= questions.length) return endTest();
+  
+  const q = questions[current];
+  const container = document.getElementById("main");
+  container.innerHTML = `
+    <h2 class="fade-in">Question ${current + 1} / ${questions.length}</h2>
+    <div class="question fade-in">${q.q}</div>
+    ${q.a.map((opt, i) => `<button onclick="checkAnswer(${i})">${opt}</button>`).join("<br>")}
+    <div class="timer fade-in" id="timer">⏱️ Time left: 15s</div>
+  `;
+  timeLeft = 15;
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").innerText = `⏱️ Time left: ${timeLeft}s`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      current++;
+      showQuestion();
+    }
+  }, 1000);
+}
+
+function checkAnswer(i) {
+  clearInterval(timer);
+  if (i === questions[current].c) score++;
+  current++;
+  showQuestion();
+}
+
+function endTest() {
+  const container = document.getElementById("main");
+  const randomIQ = Math.floor(Math.random() * 200);
+  const funnyTitles = [
+    "Chaotic Genius 💀",
+    "Confused Potato 🥔",
+    "Overclocked Brain 🧠⚡",
+    "Smart but Weird 🦄",
+    "IQ beyond measurable 💫"
+  ];
+  const title = funnyTitles[Math.floor(Math.random() * funnyTitles.length)];
+  container.innerHTML = `
+    <h2 class="fade-in">Analysis complete, ${name}.</h2>
+    <div class="result fade-in">
+      Estimated IQ: ${randomIQ}<br>
+      Result: ${title}
+    </div>
+    <button onclick="location.reload()">Restart Test</button>
+  `;
+}
+</script>
+</body>
+</html>
