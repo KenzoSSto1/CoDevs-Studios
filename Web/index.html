@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoDevs Galaxy</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      background: black;
+      color: white;
+    }
+
+    #galaxy {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at center, #0a001a 0%, #000000 100%);
+      z-index: 0;
+    }
+
+    .center-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 1;
+    }
+
+    .logo {
+      width: 180px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 10px #8a2be2);
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #b366ff;
+      text-shadow: 0 0 15px #8a2be2, 0 0 30px #4b0082;
+      animation: glow 3s ease-in-out infinite;
+    }
+
+    p {
+      font-size: 1.1rem;
+      color: #c0aaff;
+      text-shadow: 0 0 8px #4b0082;
+    }
+
+    @keyframes glow {
+      0%, 100% { text-shadow: 0 0 15px #8a2be2, 0 0 30px #4b0082; }
+      50% { text-shadow: 0 0 30px #b366ff, 0 0 60px #8a2be2; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="galaxy"></canvas>
+
+  <div class="center-text">
+    <img src="logo.png" alt="CoDevs Studios" class="logo">
+    <h1>✨ Welcome to CoDevs Multiverse ✨</h1>
+    <p>Explore the infinite worlds of CoDevs Studios</p>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('galaxy');
+    const ctx = canvas.getContext('2d');
+
+    let stars = [];
+    const numStars = 300;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function createStars() {
+      stars = [];
+      for (let i = 0; i < numStars; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 1.5,
+          speed: Math.random() * 0.5 + 0.2,
+          alpha: Math.random() * 0.8 + 0.2
+        });
+      }
+    }
+
+    function drawStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'white';
+      for (const s of stars) {
+        ctx.globalAlpha = s.alpha;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+
+    function moveStars() {
+      for (const s of stars) {
+        s.y += s.speed;
+        if (s.y > canvas.height) s.y = 0;
+      }
+    }
+
+    function animate() {
+      drawStars();
+      moveStars();
+      requestAnimationFrame(animate);
+    }
+
+    createStars();
+    animate();
+  </script>
+</body>
+  </html>
