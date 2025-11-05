@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CoDevs Studios AI : Assistant</title>
+<style>
+:root{
+  --bg:#080011;
+  --accent:#b66dff;
+  --accent2:#7a3eff;
+  --text:#f1eaff;
+}
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  background:radial-gradient(circle at 50% 30%,#1b0033 0%,#070011 80%);
+  font-family:'Segoe UI',sans-serif;
+  color:var(--text);
+  overflow:hidden;
+}
+header{
+  padding:20px;
+  text-align:center;
+  font-weight:700;
+  font-size:1.4rem;
+  color:var(--accent);
+  text-shadow:0 0 10px var(--accent2);
+  letter-spacing:1px;
+  animation:fadeIn 2s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.chatbox{
+  flex:1;
+  overflow-y:auto;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  scroll-behavior:smooth;
+}
+.message{
+  max-width:80%;
+  padding:12px 16px;
+  border-radius:16px;
+  backdrop-filter:blur(6px);
+  font-size:0.95rem;
+  box-shadow:0 0 12px rgba(182,109,255,0.15);
+  animation:pop .25s ease;
+}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.user{
+  align-self:flex-end;
+  background:linear-gradient(135deg,var(--accent2),#4b20a3);
+}
+.ai{
+  align-self:flex-start;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(182,109,255,0.25);
+}
+.inputbar{
+  display:flex;
+  padding:14px;
+  background:rgba(255,255,255,0.03);
+  border-top:1px solid rgba(182,109,255,0.15);
+}
+input{
+  flex:1;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:var(--text);
+  font-size:1rem;
+}
+button{
+  background:linear-gradient(90deg,var(--accent2),var(--accent));
+  border:none;
+  color:white;
+  padding:10px 18px;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 0 15px rgba(182,109,255,0.3);
+}
+.status{
+  text-align:center;
+  font-size:0.8rem;
+  opacity:.7;
+  margin:6px;
+}
+canvas#particles{
+  position:fixed;inset:0;z-index:-1;
+}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<header>🧠 CoDevs Studios AI : Assistant</header>
+<div class="chatbox" id="chatbox">
+  <div class="message ai">Booting CoDevs Core... ✅<br>Welcome, Kenzo.</div>
+</div>
+<div class="status" id="status">Status: Idle</div>
+<div class="inputbar">
+  <input id="input" placeholder="Type a message..." />
+  <button id="send">Send</button>
+</div>
+
+<script>
+const chatbox=document.getElementById('chatbox');
+const input=document.getElementById('input');
+const send=document.getElementById('send');
+const statusEl=document.getElementById('status');
+
+function addMsg(text,cls){
+  const m=document.createElement('div');
+  m.className='message '+cls;
+  m.innerHTML=text;
+  chatbox.appendChild(m);
+  chatbox.scrollTop=chatbox.scrollHeight;
+}
+
+function fakeAIResponse(q){
+  statusEl.textContent='Status: Thinking...';
+  const responses=[
+    "Interesting question! 🤔",
+    "Processing data streams... ✅",
+    "I believe the answer lies within CoDevs Universe.",
+    "According to my simulated knowledge, that's possible.",
+    "Running logic core... complete. I think you're right!",
+    "That's classified... just kidding 😄"
+  ];
+  const r=responses[Math.floor(Math.random()*responses.length)];
+  let typed="";
+  let i=0;
+  function type(){
+    if(i<r.length){
+      typed+=r[i++];
+      aiMsg.innerHTML=typed;
+      setTimeout(type,35);
+    }else{
+      statusEl.textContent='Status: Response complete';
+    }
+  }
+  const aiMsg=document.createElement('div');
+  aiMsg.className='message ai';
+  chatbox.appendChild(aiMsg);
+  chatbox.scrollTop=chatbox.scrollHeight;
+  setTimeout(type,500);
+}
+
+send.onclick=()=>{
+  const val=input.value.trim();
+  if(!val)return;
+  addMsg(val,'user');
+  input.value='';
+  fakeAIResponse(val);
+};
+input.addEventListener('keydown',e=>{if(e.key==='Enter')send.click();});
+
+// Simple holographic particle bg
+const c=document.getElementById('particles');
+const ctx=c.getContext('2d');
+let w,h;function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight;}
+window.addEventListener('resize',resize);resize();
+const p=Array.from({length:80},()=>({x:Math.random()*w,y:Math.random()*h,s:Math.random()*2+1,d:Math.random()*0.5+0.5}));
+function loop(){
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='rgba(182,109,255,0.3)';
+  p.forEach(pt=>{
+    ctx.beginPath();ctx.arc(pt.x,pt.y,pt.s,0,Math.PI*2);ctx.fill();
+    pt.y+=pt.d;if(pt.y>h)pt.y=0;
+  });
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
