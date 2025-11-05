@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FakeBackdoor — CoDevs Studios (Simulation)</title>
+  <style>
+    :root{
+      --bg:#050007;
+      --panel: rgba(10,6,20,0.6);
+      --accent:#9b63ff;
+      --accent-2:#5bd1ff;
+      --text:#cfc6ff;
+      --glow: 0 0 20px rgba(155,99,255,0.25);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family: "Courier New", monospace;background: radial-gradient(ellipse at center, #080015 0%, #010003 70%); color:var(--text);overflow:hidden}
+    .wrap{
+      width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:20px;
+    }
+
+    .ui {
+      width: 960px;
+      max-width:95%;
+      min-height:540px;
+      background: linear-gradient(180deg, rgba(16,8,30,0.65), rgba(6,3,20,0.45));
+      border: 1px solid rgba(155,99,255,0.18);
+      border-radius:12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      position:relative;
+      overflow:hidden;
+      display:grid;
+      grid-template-rows: 68px 1fr 90px;
+      gap:12px;
+      padding:18px;
+      backdrop-filter: blur(6px) saturate(120%);
+    }
+
+    header {
+      display:flex;align-items:center;gap:12px;padding:6px 12px;
+      border-radius:8px;
+    }
+    .logo-dot{
+      width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#3b2b9a);
+      box-shadow: var(--glow);
+      display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;
+      font-size:18px;
+    }
+    h2{font-size:18px;margin:0;color:var(--accent);text-shadow: 0 0 8px rgba(155,99,255,0.18)}
+
+    .main {
+      position:relative;padding:12px;border-radius:8px;display:flex;gap:12px;
+      align-items:stretch;
+    }
+
+    .terminal {
+      flex:1; background: linear-gradient(180deg, rgba(4,2,8,0.6), rgba(2,1,6,0.55));
+      border-radius:8px;padding:16px; box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
+      border:1px solid rgba(91,209,255,0.06);
+      overflow:auto; font-size:14px; line-height:1.45;
+    }
+
+    .terminal .line{white-space:pre-wrap; word-break:break-word; color:var(--text)}
+    .terminal .accent{ color: var(--accent-2); text-shadow:0 0 8px rgba(91,209,255,0.08) }
+    .terminal .ok{ color:#7cffb2 }
+    .terminal .danger{ color:#ff6b9a }
+
+    .controls {
+      width:320px; max-width:34%;
+      display:flex;flex-direction:column;gap:12px;
+    }
+    .panel {
+      background:var(--panel); border-radius:8px;padding:12px;border:1px solid rgba(155,99,255,0.06);
+    }
+    button.primary{
+      background:linear-gradient(90deg,var(--accent),#6f3ef8);
+      border:none;color:white;padding:12px 14px;border-radius:10px;font-weight:700;
+      cursor:pointer; box-shadow: var(--glow);
+    }
+    button.ghost{
+      background:transparent;border:1px solid rgba(155,99,255,0.18); color:var(--text);
+      padding:10px;border-radius:8px;cursor:pointer;
+    }
+    .small{font-size:13px;color:#cfc6ff;opacity:0.9}
+    .muted{color:rgba(205,200,255,0.45);font-size:13px}
+
+    /* glitch overlay */
+    .glitch {
+      position:absolute;inset:0;pointer-events:none;
+      mix-blend-mode:screen;opacity:0;
+      background-image: repeating-linear-gradient(90deg, rgba(155,99,255,0.02), rgba(155,99,255,0.02) 2px, transparent 2px, transparent 4px);
+      transition:opacity .2s ease;
+    }
+    .glitch.active{opacity:0.55; animation:shift 0.9s infinite linear}
+
+    @keyframes shift{
+      0%{transform:translateX(0)}
+      25%{transform:translateX(6px)}
+      50%{transform:translateX(-6px)}
+      75%{transform:translateX(3px)}
+      100%{transform:translateX(0)}
+    }
+
+    .footer {
+      display:flex;justify-content:space-between;align-items:center;padding:8px 12px;color:var(--muted)
+    }
+    .muted small{color:rgba(200,190,255,0.5)}
+    .tag {background: rgba(155,99,255,0.08); color:var(--accent); padding:6px 10px;border-radius:8px;font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="ui" role="application" aria-label="FakeBackdoor Simulation">
+      <header>
+        <div class="logo-dot">CD</div>
+        <div>
+          <h2>FakeBackdoor — CoDevs Studios</h2>
+          <div class="muted small">Simulation (visual only) · Safe · No network activity</div>
+        </div>
+      </header>
+
+      <div class="main">
+        <div class="terminal" id="terminal" aria-live="polite">
+          <div class="line accent">[system] idle — awaiting command...</div>
+        </div>
+
+        <div class="controls">
+          <div class="panel">
+            <div style="display:flex;gap:8px">
+              <button class="primary" id="startBtn">Start Simulation</button>
+              <button class="ghost" id="stopBtn">Reset</button>
+            </div>
+            <div style="height:8px"></div>
+            <div class="small">Options</div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="soundToggle" checked> Play typing sound</label>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="small">Quick statuses</div>
+            <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+              <div class="muted"><strong class="tag">SIM</strong> Simulation mode: <span id="modeText">standby</span></div>
+              <div class="muted"><strong class="tag">LOG</strong> Events: <span id="eventsCount">0</span></div>
+            </div>
+          </div>
+
+          <div class="panel" style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center">
+            <div class="small">Tip: This is only a visual simulator. Do not use on live servers.</div>
+          </div>
+        </div>
+
+        <div class="glitch" id="glitch"></div>
+      </div>
+
+      <div class="footer">
+        <div class="muted small"><small>CoDevs Studios · FakeBackdoor Simulation</small></div>
+        <div class="muted small">Status: <span id="statusTag">Idle</span></div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="typeSound">
+    <source src="" />
+  </audio>
+
+  <script>
+    // --- Terminal simulation engine ---
+    const terminal = document.getElementById('terminal');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const glitch = document.getElementById('glitch');
+    const modeText = document.getElementById('modeText');
+    const eventsCount = document.getElementById('eventsCount');
+    const statusTag = document.getElementById('statusTag');
+    const soundToggle = document.getElementById('soundToggle');
+
+    // Predefined scripted lines (visual-only)
+    const script = [
+      "[net] initializing virtual stack...",
+      ">> handshake: OK",
+      ">> auth token: x3f9-****-generated",
+      "[ssh] connecting to remote.fake.host:22",
+      ">>> connection established",
+      "Scanning processes...",
+      "PID 00124 — process: renderer.exe — flagged",
+      "PID 00421 — process: vaultsvc — FLAGGED",
+      ">> exploiting simulated buffer...",
+      ">>> payload delivered (visual-only)",
+      "ACCESS GRANTED",
+      "Dumping safe-demo-data...",
+      "SIMULATED OUTPUT: { 'id': 'demo-0001', 'name': 'co_dev_sample' }",
+      "SYSTEM BREACH — REPORT GENERATED",
+      "CLEANUP: removing temporary traces",
+      "CLOSING CONNECTIONS...",
+      "[sys] simulation complete. returning to idle."
+    ];
+
+    let pointer = 0;
+    let typing = false;
+    let events = 0;
+    let typeAudio = null;
+
+    // create a lightweight typing sound (WebAudio) to avoid external file
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    function playTypeBeep(){
+      if(!soundToggle.checked) return;
+      try{
+        if(!audioCtx) audioCtx = new AudioContext();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = 'square';
+        o.frequency.value = 900 + Math.random() * 400;
+        g.gain.value = 0.01;
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start();
+        setTimeout(()=>{ o.stop(); }, 50 + Math.random()*80);
+      }catch(e){ /* ignore audio errors */ }
+    }
+
+    function appendLine(text, className){
+      const el = document.createElement('div');
+      el.className = 'line ' + (className||'');
+      el.textContent = text;
+      terminal.appendChild(el);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function typeOut(text, cb){
+      typing = true;
+      let i=0;
+      function step(){
+        if(i < text.length){
+          const last = terminal.lastChild;
+          if(!last || !last.classList.contains('typing')) {
+            const newLine = document.createElement('div');
+            newLine.className = 'line typing';
+            newLine.textContent = "";
+            terminal.appendChild(newLine);
+          }
+          terminal.lastChild.textContent += text[i++];
+          terminal.scrollTop = terminal.scrollHeight;
+          playTypeBeep();
+          setTimeout(step, 18 + Math.random()*40);
+        } else {
+          terminal.lastChild.classList.remove('typing');
+          typing = false;
+          if(cb) cb();
+        }
+      }
+      step();
+    }
+
+    function runScript(){
+      if(pointer >= script.length){
+        endSimulation();
+        return;
+      }
+      const line = script[pointer++];
+      // small chance to show glitch visuals on important messages
+      if(line.includes("ACCESS GRANTED") || line.includes("SYSTEM BREACH")){
+        glitch.classList.add('active');
+        setTimeout(()=>glitch.classList.remove('active'), 800);
+      }
+      typeOut(line, ()=>{
+        events++;
+        eventsCount.textContent = events;
+        setTimeout(runScript, 350 + Math.random()*700);
+      });
+    }
+
+    function startSimulation(){
+      if(typing) return;
+      pointer = 0; events = 0; terminal.innerHTML = "";
+      appendLine("[system] launching fake simulation...");
+      modeText.textContent = "running";
+      statusTag.textContent = "Simulating";
+      glitch.classList.add('active');
+      setTimeout(()=>glitch.classList.remove('active'), 500);
+      setTimeout(()=> runScript(), 600);
+    }
+
+    function endSimulation(){
+      appendLine("[system] simulation finalized. cleaning workspace...");
+      modeText.textContent = "standby";
+      statusTag.textContent = "Idle";
+      pointer = 0;
+      // small final glitch
+      glitch.classList.add('active');
+      setTimeout(()=>glitch.classList.remove('active'), 900);
+    }
+
+    startBtn.addEventListener('click', ()=>{
+      startSimulation();
+    });
+
+    stopBtn.addEventListener('click', ()=>{
+      terminal.innerHTML = "";
+      appendLine("[system] reset.");
+      modeText.textContent = "standby";
+      statusTag.textContent = "Idle";
+      events = 0; eventsCount.textContent = events;
+      pointer = 0;
+      glitch.classList.remove('active');
+    });
+
+    // keyboard shortcut: press Space to start
+    window.addEventListener('keydown', (e)=>{
+      if(e.code === 'Space') {
+        e.preventDefault();
+        startSimulation();
+      }
+      if(e.key === 'r' || e.key === 'R') {
+        stopBtn.click();
+      }
+    });
+
+    // Accessibility: announce updates for screen readers
+    const liveRegion = document.createElement('div');
+    liveRegion.setAttribute('aria-live','polite');
+    liveRegion.style.position='absolute';
+    liveRegion.style.left='-9999px';
+    document.body.appendChild(liveRegion);
+
+    // update live region when events change
+    const obs = new MutationObserver(()=>{ liveRegion.textContent = `Events: ${events}`; });
+    obs.observe(terminal, {childList:true, subtree:true});
+
+    // initial demo line
+    appendLine("[system] ready. press Start Simulation to run visual demo.");
+  </script>
+</body>
+</html>
