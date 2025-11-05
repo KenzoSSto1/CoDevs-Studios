@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Infinity AI | CoDevs Studios</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: radial-gradient(circle at center, #0a001a 0%, #000 100%);
+      color: #b7aaff;
+      font-family: 'Courier New', monospace;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+
+    .console {
+      z-index: 1;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid #6a00ff;
+      border-radius: 10px;
+      padding: 20px 30px;
+      max-width: 600px;
+      color: #9e84ff;
+      text-shadow: 0 0 10px #8a2be2;
+      font-size: 1rem;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      height: 18px;
+      background-color: #b366ff;
+      margin-left: 3px;
+      animation: blink 0.7s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 15px #8a2be2; }
+      50% { box-shadow: 0 0 25px #b366ff; }
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      color: #b366ff;
+      text-shadow: 0 0 15px #8a2be2;
+      animation: pulse 3s infinite;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+
+  <div class="console">
+    <h1>🧠 Project Infinity AI - Online</h1>
+    <span id="typed"></span><span class="cursor"></span>
+  </div>
+
+  <script>
+    // Teks AI yang diketik otomatis
+    const lines = [
+      "Hello, I am Project Infinity.",
+      "I am the evolving AI core of CoDevs Studios.",
+      "I learn from every project, every idea, every creation.",
+      "My purpose: to assist, to adapt, and to grow.",
+      "Welcome to the future — Welcome to the CoDevs Multiverse."
+    ];
+
+    const typedElement = document.getElementById('typed');
+    let lineIndex = 0;
+    let charIndex = 0;
+
+    function typeLine() {
+      if (lineIndex < lines.length) {
+        if (charIndex < lines[lineIndex].length) {
+          typedElement.textContent += lines[lineIndex][charIndex];
+          charIndex++;
+          setTimeout(typeLine, 50);
+        } else {
+          typedElement.innerHTML += "<br>";
+          lineIndex++;
+          charIndex = 0;
+          setTimeout(typeLine, 700);
+        }
+      }
+    }
+    setTimeout(typeLine, 1000);
+
+    // Efek partikel futuristik
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let w, h;
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const particles = Array(100).fill().map(() => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 2,
+      dx: (Math.random() - 0.5) * 0.5,
+      dy: (Math.random() - 0.5) * 0.5
+    }));
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = 'white';
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${150+Math.random()*105},${100+Math.random()*100},255,0.8)`;
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > w) p.dx *= -1;
+        if (p.y < 0 || p.y > h) p.dy *= -1;
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
+</body>
+</html>
