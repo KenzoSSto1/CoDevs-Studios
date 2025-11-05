@@ -8,6 +8,14 @@ You can test your IQ here and there is a more sophisticated AI
 You can try this website for free and don't forget to give it 5 stars
 so that I can be more enthusiastic about making the next project
 
-#Credits By Steven And John
+# Credits By Steven And John
 
 Steven Its Me And John Is My Firends
+
+# learn
+
+1.you can also learn here
+
+# More Sophisticated AI
+
+100% AI
