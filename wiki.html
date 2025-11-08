@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoDevs WikiVerse</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(120deg, #101820, #0b0f17);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    background: #171c28;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 2px solid #00ffff;
+  }
+  h1 {
+    margin: 0;
+    color: #00ffff;
+  }
+  .container {
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+  }
+  textarea, input {
+    width: 100%;
+    background: #1d2331;
+    border: 1px solid #00ffff;
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 5px 0;
+  }
+  button {
+    background: #00ffff;
+    border: none;
+    color: #000;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  button:hover {
+    background: #0fffcf;
+    transform: scale(1.05);
+  }
+  .story {
+    background: #1a2133;
+    border: 1px solid #00ffff;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+  }
+  .story h2 {
+    color: #00ffff;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>🌐 CoDevs WikiVerse</h1>
+    <p>Create and publish your own stories — no login required!</p>
+  </header>
+
+  <div class="container">
+    <h2>Write Your Story</h2>
+    <input type="text" id="title" placeholder="Story Title">
+    <textarea id="content" rows="6" placeholder="Write your story here..."></textarea>
+    <button onclick="publishStory()">📖 Publish</button>
+
+    <h2>Published Stories</h2>
+    <div id="stories"></div>
+  </div>
+
+<script>
+  const storiesContainer = document.getElementById('stories');
+
+  function publishStory() {
+    const title = document.getElementById('title').value.trim();
+    const content = document.getElementById('content').value.trim();
+    if (!title || !content) {
+      alert("Please fill in both title and story!");
+      return;
+    }
+
+    const storyDiv = document.createElement('div');
+    storyDiv.className = 'story';
+    storyDiv.innerHTML = `<h2>${title}</h2><p>${content}</p><small>Published by Anonymous</small>`;
+    storiesContainer.prepend(storyDiv);
+
+    // Simpan sementara di localStorage
+    const stories = JSON.parse(localStorage.getItem('stories') || '[]');
+    stories.unshift({ title, content });
+    localStorage.setItem('stories', JSON.stringify(stories));
+
+    document.getElementById('title').value = '';
+    document.getElementById('content').value = '';
+  }
+
+  window.onload = () => {
+    const savedStories = JSON.parse(localStorage.getItem('stories') || '[]');
+    savedStories.forEach(s => {
+      const storyDiv = document.createElement('div');
+      storyDiv.className = 'story';
+      storyDiv.innerHTML = `<h2>${s.title}</h2><p>${s.content}</p><small>Published by Anonymous</small>`;
+      storiesContainer.appendChild(storyDiv);
+    });
+  }
+</script>
+</body>
+  </html>
